@@ -5,6 +5,7 @@ import co.uk.mytutor.code.challenge.codechallenge.exception.BookNotFoundExceptio
 import co.uk.mytutor.code.challenge.codechallenge.model.Book;
 import co.uk.mytutor.code.challenge.codechallenge.model.BookShop;
 import co.uk.mytutor.code.challenge.codechallenge.service.base.BookShopBaseService;
+import co.uk.mytutor.code.challenge.codechallenge.utils.RoundUpValueUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -36,8 +37,8 @@ public class BookShopService implements BookShopBaseService<BookShop> {
         }
 
         final Comparator<Book> compareByCopiesSoldAndProfit = Comparator
-                .comparing(Book::getCopiesSold)
-                .thenComparing(Book::getProfit);
+                .comparing(Book::getCopiesSold).reversed()
+                .thenComparing(Book::getType);
 
         books = books.stream()
                 .sorted(compareByCopiesSoldAndProfit)
@@ -45,7 +46,7 @@ public class BookShopService implements BookShopBaseService<BookShop> {
 
 
         final Double profit = books.stream().mapToDouble(Book::getProfit).sum();
-        bookShop.setBallance(BookService.budget + profit);
+        bookShop.setBallance(BookService.budget + RoundUpValueUtils.roundUpValue(profit));
         bookShop.setBooks(books);
 
         return bookShop;

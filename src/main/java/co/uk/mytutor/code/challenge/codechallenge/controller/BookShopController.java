@@ -22,12 +22,12 @@ public class BookShopController {
     private BookShopService bookShopService;
 
     @GetMapping(value = "/report")
-    public ResponseEntity<?> sellBook() {
+    public String sellBook() {
         try {
             final BookShop bookShop = this.bookShopService.getSellingReport();
-            return ResponseEntity.ok(bookShop);
+            return bookShop.toString();
         } catch (BookNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(e.getMessage());
+            return "";
         }
     }
 }

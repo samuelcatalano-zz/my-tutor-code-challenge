@@ -5,6 +5,7 @@ import co.uk.mytutor.code.challenge.codechallenge.exception.BookNotFoundExceptio
 import co.uk.mytutor.code.challenge.codechallenge.exception.BookOutOfStockException;
 import co.uk.mytutor.code.challenge.codechallenge.model.Book;
 import co.uk.mytutor.code.challenge.codechallenge.service.base.BookBaseService;
+import co.uk.mytutor.code.challenge.codechallenge.utils.RoundUpValueUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -52,14 +53,16 @@ public class BookService implements BookBaseService<Book> {
 
         book.setCopiesSold(book.getCopiesSold() + quantity);
         book.setQuantity(book.getQuantity() - quantity);
-        book.setProfit((book.getPrice() * quantity));
+        book.setProfit(RoundUpValueUtils.roundUpValue(((book.getPrice() * quantity) * 0.7)));
 
         books.put(type, book);
-        budget = budget + book.getPrice();
+
+        budget = budget + book.getProfit();
+        budget = RoundUpValueUtils.roundUpValue(budget);
 
         if (this.checkNeedMoreBooks(book)) {
             LOG.info("Need to buy new books!");
-            this.buyBooks(book.getType(), 10 - book.getQuantity());
+            this.buyBooks(book.getType(), 10 - book.getQuantity()); // buy new books to complete 10
         }
 
         return book;
@@ -78,12 +81,10 @@ public class BookService implements BookBaseService<Book> {
         }
 
         final Double price = book.getPrice();
-        final Double finalPrice = ((price * 0.7) * quantity);
+        final Double finalPrice = ((price * 0.7) * quantity); // getting just the profit value
         budget = budget - finalPrice;
 
         book.setQuantity(book.getQuantity() + quantity);
-        book.setProfit(book.getProfit() - finalPrice);
-
         books.put(type, book);
     }
 
